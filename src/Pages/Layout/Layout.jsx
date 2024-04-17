@@ -8,20 +8,19 @@ import {
     VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Layout as AntLayout, Menu } from 'antd';
-import { NavLink, Navigate, Outlet } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { deleteLocalStorage, tokenKey } from '../Login/Auth/Auth';
 
-const { Header, Sider, Content } = AntLayout;
+const { Header, Sider, Content, Footer } = AntLayout;
 
 const Layout = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [islogout, setIslogout] = useState(false);
-
+    const location = useLocation();
     const logout = () => {
         deleteLocalStorage(tokenKey);
-        setIslogout(true)
-
-    }
+        setIslogout(true);
+    };
 
     const menuItems = [
         {
@@ -32,22 +31,42 @@ const Layout = () => {
         {
             key: '2',
             icon: <VideoCameraOutlined />,
-            label: <NavLink to="/">Categories</NavLink>,
+            label: <NavLink to="/categories">Categories</NavLink>,
         },
         {
             key: '3',
             icon: <UploadOutlined />,
-            label: <NavLink to="/brand">Brand</NavLink>,
+            label: <NavLink to="/brand">Brands</NavLink>,
+        },
+        {
+            key: '4',
+            icon: <UploadOutlined />,
+            label: <NavLink to="/cities">Cities</NavLink>,
+        },
+        {
+            key: '5',
+            icon: <UploadOutlined />,
+            label: <NavLink to="/locations">Locations</NavLink>,
+        },
+        {
+            key: '6',
+            icon: <UploadOutlined />,
+            label: <NavLink to="/cars">Cars</NavLink>,
+        },
+        {
+            key: '7',
+            icon: <UploadOutlined />,
+            label: <NavLink to="/models">Models</NavLink>,
         },
     ];
-
+    const currentMenuKey = menuItems.find(item => location.pathname === item.label.props.to)?.key;
     return (
-        <AntLayout>
+        <AntLayout style={{ height: '100vh' }}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
-                <div className="demo-logo-vertical" style={{ padding: '16px', color: '#fff' }}>
+                <div className="demo-logo-vertical" style={{ padding: '20px', color: '#fff' }}>
                     Logo
                 </div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={menuItems} style={{ marginTop: '20px' }} />
+                <Menu theme="dark" mode="inline"   defaultSelectedKeys={[currentMenuKey]} items={menuItems} style={{ marginTop: '20px' }} />
             </Sider>
             <AntLayout>
                 <Header
@@ -57,12 +76,8 @@ const Layout = () => {
                         display: 'flex',
                         alignItems: 'center',
                     }}
-
                 >
-                    {
-                        islogout ?
-                            <Navigate to="/login" /> : ''
-                    }
+                    {islogout && <Navigate to="/login" />}
                     <Button
                         type="text"
                         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -74,7 +89,13 @@ const Layout = () => {
                             marginLeft: '16px',
                         }}
                     />
-                        <Button onClick={logout}  style={{position:'absolute',right:'50px',marginTop:'14px'}} icon={<LogoutOutlined/>}>Chiqish</Button>
+                    <Button
+                        onClick={logout}
+                        style={{ position: 'absolute', right: '50px', marginTop: '14px' }}
+                        icon={<LogoutOutlined />}
+                    >
+                        Chiqish
+                    </Button>
                 </Header>
                 <Content
                     style={{
@@ -87,6 +108,9 @@ const Layout = () => {
                 >
                     <Outlet />
                 </Content>
+                <Footer style={{ textAlign: 'center' }}>
+                © Created by LIMSA company 2024
+                </Footer>
             </AntLayout>
         </AntLayout>
     );
