@@ -11,6 +11,7 @@ export const getToken=(key)=>{
 }
 
 export const host ='https://autoapi.dezinfeksiyatashkent.uz/api';
+export const urlimage = 'https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/' 
 
 export let httpRequest=(config)=>{
     return axios({
