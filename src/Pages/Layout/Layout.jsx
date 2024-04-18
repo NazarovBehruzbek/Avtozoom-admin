@@ -3,14 +3,17 @@ import {
     LogoutOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
+    UnorderedListOutlined,
+    CarOutlined,
+    HomeOutlined,
+    OpenAIOutlined,
+    EnvironmentOutlined,
+    FileDoneOutlined,
+    TableOutlined,
 } from '@ant-design/icons';
 import { Button, Layout as AntLayout, Menu } from 'antd';
 import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { deleteLocalStorage, tokenKey } from '../Login/Auth/Auth';
-
 const { Header, Sider, Content, Footer } = AntLayout;
 
 const Layout = () => {
@@ -25,37 +28,37 @@ const Layout = () => {
     const menuItems = [
         {
             key: '1',
-            icon: <UserOutlined />,
+            icon: <HomeOutlined />,
             label: <NavLink to="/">Dashboard</NavLink>,
         },
         {
             key: '2',
-            icon: <VideoCameraOutlined />,
+            icon: <UnorderedListOutlined />,
             label: <NavLink to="/categories">Categories</NavLink>,
         },
         {
             key: '3',
-            icon: <UploadOutlined />,
+            icon: <FileDoneOutlined />,
             label: <NavLink to="/brand">Brands</NavLink>,
         },
         {
             key: '4',
-            icon: <UploadOutlined />,
+            icon: <OpenAIOutlined />,
             label: <NavLink to="/cities">Cities</NavLink>,
         },
         {
             key: '5',
-            icon: <UploadOutlined />,
+            icon: <EnvironmentOutlined />,
             label: <NavLink to="/locations">Locations</NavLink>,
         },
         {
             key: '6',
-            icon: <UploadOutlined />,
+            icon: <CarOutlined />,
             label: <NavLink to="/cars">Cars</NavLink>,
         },
         {
             key: '7',
-            icon: <UploadOutlined />,
+            icon: <TableOutlined />,
             label: <NavLink to="/models">Models</NavLink>,
         },
     ];
@@ -64,7 +67,7 @@ const Layout = () => {
         <AntLayout style={{ height: '100vh' }}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className="demo-logo-vertical" style={{ padding: '20px', color: '#fff' }}>
-                    Logo
+                    AVTOZOOM
                 </div>
                 <Menu theme="dark" mode="inline"   defaultSelectedKeys={[currentMenuKey]} items={menuItems} style={{ marginTop: '20px' }} />
             </Sider>
