@@ -10,7 +10,7 @@ export const getToken=(key)=>{
     return localStorage.getItem(key);
 }
 
-const host ='https://autoapi.dezinfeksiyatashkent.uz/api';
+export const host ='https://autoapi.dezinfeksiyatashkent.uz/api';
 
 export let httpRequest=(config)=>{
     return axios({
