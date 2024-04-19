@@ -10,6 +10,9 @@ export const getToken=(key)=>{
     return localStorage.getItem(key);
 }
 
+export const host ='https://autoapi.dezinfeksiyatashkent.uz/api';
+export const urlimage = 'https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/' 
+
 export let httpRequest=(config)=>{
     return axios({
         ...config,
@@ -20,7 +23,7 @@ export let httpRequest=(config)=>{
 }
 export let signin=(object)=>{
     let config={
-        url:`https://autoapi.dezinfeksiyatashkent.uz/api/auth/signin`,
+        url:`${host}/auth/signin`,
         method:'post',
         data:object
     }
