@@ -64,7 +64,7 @@ const Layout = () => {
     ];
     const currentMenuKey = menuItems.find(item => location.pathname === item.label.props.to)?.key;
     return (
-        <AntLayout style={{ height: '100vh' }}>
+        <AntLayout>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className="demo-logo-vertical" style={{ padding: '20px', color: '#fff' }}>
                     AVTOZOOM
