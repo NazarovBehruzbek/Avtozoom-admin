@@ -3,8 +3,3 @@
     justify-content: space-between;
     padding-bottom: 20px;
 }
-/* Custom styles for the Ant Design Table */
-.ant-table-thead {
-    background-color: red; 
-}
-
