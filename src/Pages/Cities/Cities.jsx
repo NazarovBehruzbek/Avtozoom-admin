@@ -193,7 +193,7 @@ const deleteCity = (id) => {
         <Button type='primary' onClick={showModal}>Add cities</Button>
       </div>
       <Table dataSource={dataSource} columns={columns} />
-      <Modal title="Add" open={isModalOpen} onCancel={handleCancel} footer={null}>
+      <Modal title={currentItem?"Tahrirlash":"Qo'shish"} open={isModalOpen} onCancel={handleCancel} footer={null}>
         <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onFinish={handleOk}>
           <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
             <Input />

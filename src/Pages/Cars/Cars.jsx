@@ -7,6 +7,8 @@ import { PlusOutlined } from '@ant-design/icons';
 
 export default function Cars() {
   const [open, setOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [cars, setCars] = useState([])
   const [category, setCategory] = useState([]);
   const [brand, setBrand] = useState([]);
   const [model, setModel] = useState([]);
@@ -15,6 +17,19 @@ export default function Cars() {
   const [form] = Form.useForm();
   const showModal = () => {
     setOpen(true);
+  };
+  const handleCancel = () => {
+    setOpen(false);
+    setCurrentItem(null);
+  };
+  const getCars = () => {
+    axios.get(`${host}/cars`)
+      .then(response => {
+        setCars(response?.data?.data);
+      })
+      .catch(error => {
+        console.error("Error fetching cities data:", error);
+      });
   };
   const getCategory = () => {
     axios.get(`${host}/categories`)
@@ -27,36 +42,36 @@ export default function Cars() {
   };
 
   const getBrand = () => {
-    axios.get(`${host}/categories`)
+    axios.get(`${host}/brands`)
       .then(response => {
-        setCategory(response?.data?.data);
+        setBrand(response?.data?.data);
       })
       .catch(error => {
         console.error("Error fetching cities data:", error);
       });
   };
   const getModel = () => {
-    axios.get(`${host}/categories`)
+    axios.get(`${host}/models`)
       .then(response => {
-        setCategory(response?.data?.data);
+        setModel(response?.data?.data);
       })
       .catch(error => {
         console.error("Error fetching cities data:", error);
       });
   };
   const getLocation = () => {
-    axios.get(`${host}/categories`)
+    axios.get(`${host}/locations`)
       .then(response => {
-        setCategory(response?.data?.data);
+        setLocation(response?.data?.data);
       })
       .catch(error => {
         console.error("Error fetching cities data:", error);
       });
   };
   const getCity = () => {
-    axios.get(`${host}/categories`)
+    axios.get(`${host}/cities`)
       .then(response => {
-        setCategory(response?.data?.data);
+        setCity(response?.data?.data);
       })
       .catch(error => {
         console.error("Error fetching cities data:", error);
@@ -64,6 +79,7 @@ export default function Cars() {
   };
 
   useEffect(() => {
+    getCars();
     getCategory();
     getBrand();
     getModel();
@@ -71,7 +87,6 @@ export default function Cars() {
     getCity();
   }, []);
 
-  // Image file validation
   const beforeUpload = (file) => {
     const allowedExtensions = ['jpg', 'jpeg', 'png'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -91,12 +106,140 @@ export default function Cars() {
     }
     return e && e.fileList;
   }
+
+  const handleOk = (values) => {
+    const formData = new FormData();
+    const inclusiveValue = values.inclusive;
+    formData.append('category_id', values.category_id);
+    formData.append('brand_id', values.brand_id);
+    formData.append('model_id', values.model_id);
+    formData.append('city_id', values.city_id);
+    formData.append('location_id', values.location_id);
+    formData.append('color', values.color);
+    formData.append('year', values.year);
+    formData.append('seconds', values.seconds);
+    formData.append('max_speed', values.max_speed);
+    formData.append('max_people', values.max_people);
+    formData.append('transmission', values.transmission);
+    formData.append('motor', values.motor);
+    formData.append('drive_side', values.drive_side);
+    formData.append('petrol', values.petrol);
+    formData.append('limitperday', values.limitperday);
+    formData.append('deposit', values.deposit);
+    formData.append('premium_protection', values.premium_protection);
+    formData.append('price_in_aed', values.price_in_aed);
+    formData.append('price_in_usd', values.price_in_usd);
+    formData.append('price_in_aed_sale', values.price_in_aed_sale);
+    formData.append('price_in_usd_sale', values.price_in_usd_sale);
+    formData.append('inclusive', inclusiveValue ? 'false' : 'true');
+    if (values.images1 && values.images1.length > 0) {
+        values.images1.forEach((image) => {
+            if (image && image.originFileObj) {
+                formData.append('images', image.originFileObj, image.name);
+            }
+        });
+    }
+    if (values.images2 && values.images2.length > 0) {
+      values.images2.forEach((image) => {
+          if (image && image.originFileObj) {
+              formData.append('images', image.originFileObj, image.name);
+          }
+      });
+  }
+  if (values.cover && values.cover.length > 0) {
+    values.cover.forEach((image) => {
+        if (image && image.originFileObj) {
+            formData.append('cover', image.originFileObj, image.name);
+        }
+    });
+}
+
+    const url = currentItem ? `${host}/cars/${currentItem.id}` : `${host}/cars`;
+    const method = currentItem ? 'PUT' : 'POST';
+    const authToken = getToken(tokenKey);
+
+    axios({
+        url: url,
+        method: method,
+        data: formData,
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+        .then(response => {
+            if (response && response.data) {
+                message.success(currentItem ? "City updated successfully" : "City added successfully");
+                handleCancel();
+                getCars();
+            } else {
+                message.error("Failed to save city");
+            }
+        })
+        .catch(error => {
+            console.error("Error processing request:", error);
+            message.error("An error occurred while processing the request");
+        });
+};
+
+  const columns = [
+    {
+      title: '№',
+      dataIndex: 'number',
+      key: 'number',
+    },
+    {
+      title: 'Rangi',
+      dataIndex: 'rangi',
+      key: 'rangi',
+    },
+    {
+      title: 'Brand',
+      dataIndex: 'brand',
+      key: 'brand',
+    },
+    {
+      title: 'Model',
+      dataIndex: 'model',
+      key: 'model',
+    },
+    {
+      title: 'Kategoriya',
+      dataIndex: 'kategoriya',
+      key: 'model',
+    },
+    {
+      title: 'Lokatsiya',
+      dataIndex: 'location',
+      key: 'location',
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+    },
+  ];
+  const dataSource = cars.map((item, index) => ({
+    key: item.id,
+    number: index + 1,
+    rangi:item.rangi,
+    name: item.name,
+    text: item.text,
+    action: (
+      <>
+        <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
+        <Button type="primary" danger onClick={()=>deleteCity(item.id)}>Delete</Button>
+      </>
+    )
+  }));
+
   return (
     <div>
       <div className="all-pages">
         <h2>Cars</h2>
         <Button type='primary' onClick={showModal}>Add cities</Button>
       </div>
+      <Table dataSource={dataSource} columns={columns} />
       <Modal
         title="Cars qo'shish"
         footer={null}
@@ -105,54 +248,79 @@ export default function Cars() {
         onCancel={() => setOpen(false)}
         width={1000}
       >
-        <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+        <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }} onFinish={handleOk}>
           <Form.Item
             label="Category"
-            name="Category"
+            name="category_id"
             rules={[{ required: true, message: 'Please select a category!', }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
             <Select placeholder="Select Category">
               {category.map(item => (
-                <Select.Option key={item.value} value={item.value} disabled={item.disabled}>
+                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
                   {item.name_en}
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>            <Form.Item
+          </Form.Item>        
+              <Form.Item
             label="Brand"
-            name="Brand"
+            name="brand_id"
             rules={[{ required: true, message: 'Please input!', }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
-            <Select placeholder="Select Brand" />
+            <Select placeholder="Select Brand">
+            {brand.map(item => (
+                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+                  {item.title}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Model"
-            name="Model"
+            name="model_id"
             rules={[{ required: true, message: 'Please input!', }]}
             style={{ flex: '0 0 33%' }}
           >
-            <Select placeholder="Select Model" />
+            <Select placeholder="Select Model">
+            {model.map(item => (
+                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Location"
-            name="Location"
+            name="location_id"
             rules={[{ required: true, message: 'Please input!', }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
-            <Select placeholder="Select Location" />
+            <Select placeholder="Select Location" >
+            {location.map(item => (
+                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="City"
-            name="City"
+            name="city_id"
             rules={[{ required: true, message: 'Please input!', }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
-            <Select placeholder="Select City" />
+            <Select placeholder="Select City">
+            {city.map(item => (
+                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
-            name="Color"
+            name="color"
             label="Color"
             rules={[{ required: true, message: 'Please enter the name' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -160,7 +328,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Yil"
+            name="year"
             label="Yil"
             rules={[{ required: true, message: 'Please enter the year' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -168,15 +336,15 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Secpnds"
-            label="Color"
+            name="seconds"
+            label="Seconds"
             rules={[{ required: true, message: 'Please enter the color' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            name="Speed"
+            name="max_speed"
             label="Speed"
             rules={[{ required: true, message: 'Please enter the speed' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -184,7 +352,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Max People"
+            name="max_people"
             label="Max People"
             rules={[{ required: true, message: 'Please enter the max people' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -192,7 +360,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Motor"
+            name="motor"
             label="Motor"
             rules={[{ required: true, message: 'Please enter the motor' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -200,7 +368,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Transmission"
+            name="transmission"
             label="Transmission"
             rules={[{ required: true, message: 'Please enter the transmission' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -208,7 +376,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Drive Side"
+            name="drive_side"
             label="Drive Side"
             rules={[{ required: true, message: 'Please enter the drive side' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -216,7 +384,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Yoqilg'i"
+            name="petrol"
             label="Yoqilg'i"
             rules={[{ required: true, message: 'Please enter the yoqilg\'i' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -224,7 +392,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Limit Per Day"
+            name="limitperday"
             label="Limit Per Day"
             rules={[{ required: true, message: 'Please enter the limit per day' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -232,7 +400,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Deposit"
+            name="deposit"
             label="Deposit"
             rules={[{ required: true, message: 'Please enter the deposit' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -240,7 +408,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Premium Protection Price"
+            name="premium_protection"
             label="Premium Protection Price"
             rules={[{ required: true, message: 'Please enter the premium protection price' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -248,7 +416,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Price in AED"
+            name="price_in_aed"
             label="Price in AED"
             rules={[{ required: true, message: 'Please enter the price in AED' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -256,7 +424,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Price in USD(Otd)"
+            name="price_in_usd"
             label="Price in USD(Otd)"
             rules={[{ required: true, message: 'Please enter the price in USD(Otd)' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -264,7 +432,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Price in AED (Otd)"
+            name="price_in_aed_sale"
             label="Price in AED (Otd)"
             rules={[{ required: true, message: 'Please enter the price in AED (Otd)' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -272,7 +440,7 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Price in USD"
+            name="price_in_usd_sale"
             label="Price in USD"
             rules={[{ required: true, message: 'Please enter the price in USD' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
@@ -280,15 +448,14 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="Inclusive"
+            name="inclusive"
             label="Inclusive"
-            rules={[{ required: true, message: 'Please enter the price in USD' }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
             <Switch defaultChecked />
           </Form.Item>
           <Form.Item
-            name="images"
+            name="images1"
             label="Upload car images"
             rules={[{ required: true, message: 'Please upload images' }]}
             valuePropName="fileList"
@@ -309,7 +476,28 @@ export default function Cars() {
             </Upload>
           </Form.Item>
           <Form.Item
-            name="mainimage"
+            name="images2"
+            label="Upload the main image"
+            rules={[{ required: true, message: 'Please upload the main image' }]}
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            style={{ flex: '0 0 33%', paddingRight: '8px' }}
+          >
+            <Upload
+              customRequest={({ onSuccess }) => {
+                onSuccess("ok")
+              }}
+              beforeUpload={beforeUpload}
+              listType="picture-card"
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            </Upload>
+          </Form.Item>
+          <Form.Item
+            name="cover"
             label="Upload the main image"
             rules={[{ required: true, message: 'Please upload the main image' }]}
             valuePropName="fileList"
