@@ -133,54 +133,54 @@ export default function Cars() {
     formData.append('price_in_usd_sale', values.price_in_usd_sale);
     formData.append('inclusive', inclusiveValue ? 'false' : 'true');
     if (values.images1 && values.images1.length > 0) {
-        values.images1.forEach((image) => {
-            if (image && image.originFileObj) {
-                formData.append('images', image.originFileObj, image.name);
-            }
-        });
+      values.images1.forEach((image) => {
+        if (image && image.originFileObj) {
+          formData.append('images', image.originFileObj, image.name);
+        }
+      });
     }
     if (values.images2 && values.images2.length > 0) {
       values.images2.forEach((image) => {
-          if (image && image.originFileObj) {
-              formData.append('images', image.originFileObj, image.name);
-          }
-      });
-  }
-  if (values.cover && values.cover.length > 0) {
-    values.cover.forEach((image) => {
         if (image && image.originFileObj) {
-            formData.append('cover', image.originFileObj, image.name);
+          formData.append('images', image.originFileObj, image.name);
         }
-    });
-}
+      });
+    }
+    if (values.cover && values.cover.length > 0) {
+      values.cover.forEach((image) => {
+        if (image && image.originFileObj) {
+          formData.append('cover', image.originFileObj, image.name);
+        }
+      });
+    }
 
     const url = currentItem ? `${host}/cars/${currentItem.id}` : `${host}/cars`;
     const method = currentItem ? 'PUT' : 'POST';
     const authToken = getToken(tokenKey);
 
     axios({
-        url: url,
-        method: method,
-        data: formData,
-        headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'multipart/form-data',
-        },
+      url: url,
+      method: method,
+      data: formData,
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'multipart/form-data',
+      },
     })
-        .then(response => {
-            if (response && response.data) {
-                message.success(currentItem ? "City updated successfully" : "City added successfully");
-                handleCancel();
-                getCars();
-            } else {
-                message.error("Failed to save city");
-            }
-        })
-        .catch(error => {
-            console.error("Error processing request:", error);
-            message.error("An error occurred while processing the request");
-        });
-};
+      .then(response => {
+        if (response && response.data) {
+          message.success(currentItem ? "City updated successfully" : "City added successfully");
+          handleCancel();
+          getCars();
+        } else {
+          message.error("Failed to save city");
+        }
+      })
+      .catch(error => {
+        console.error("Error processing request:", error);
+        message.error("An error occurred while processing the request");
+      });
+  };
 
   const columns = [
     {
@@ -222,13 +222,13 @@ export default function Cars() {
   const dataSource = cars.map((item, index) => ({
     key: item.id,
     number: index + 1,
-    rangi:item.rangi,
+    rangi: item.rangi,
     name: item.name,
     text: item.text,
     action: (
       <>
         <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
-        <Button type="primary" danger onClick={()=>deleteCity(item.id)}>Delete</Button>
+        <Button type="primary" danger onClick={() => deleteCity(item.id)}>Delete</Button>
       </>
     )
   }));
@@ -257,21 +257,21 @@ export default function Cars() {
           >
             <Select placeholder="Select Category">
               {category.map(item => (
-                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+                <Select.Option key={item.id} value={item.id} disabled={item.disabled}>
                   {item.name_en}
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>        
-              <Form.Item
+          </Form.Item>
+          <Form.Item
             label="Brand"
             name="brand_id"
             rules={[{ required: true, message: 'Please input!', }]}
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
             <Select placeholder="Select Brand">
-            {brand.map(item => (
-                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+              {brand.map(item => (
+                <Select.Option key={item.id} value={item.id} disabled={item.disabled}>
                   {item.title}
                 </Select.Option>
               ))}
@@ -284,8 +284,8 @@ export default function Cars() {
             style={{ flex: '0 0 33%' }}
           >
             <Select placeholder="Select Model">
-            {model.map(item => (
-                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+              {model.map(item => (
+                <Select.Option key={item.id} value={item.id} disabled={item.disabled}>
                   {item.name}
                 </Select.Option>
               ))}
@@ -298,8 +298,8 @@ export default function Cars() {
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
             <Select placeholder="Select Location" >
-            {location.map(item => (
-                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+              {location.map(item => (
+                <Select.Option key={item.id} value={item.id} disabled={item.disabled}>
                   {item.name}
                 </Select.Option>
               ))}
@@ -312,8 +312,8 @@ export default function Cars() {
             style={{ flex: '0 0 33%', paddingRight: '8px' }}
           >
             <Select placeholder="Select City">
-            {city.map(item => (
-                <Select.Option key={item.value} value={item.id} disabled={item.disabled}>
+              {city.map(item => (
+                <Select.Option key={item.id} value={item.id} disabled={item.disabled}>
                   {item.name}
                 </Select.Option>
               ))}
