@@ -165,14 +165,14 @@ export default function Categories() {
      formData.append("name_ru", event.name_ru);
      console.log("uz--", event.name_uz);
      console.log("ru--",event.name_ru);
-     console.log("Img--", event.images[0].uid);
+     console.log("Img--", event.images.file.uid);
      formData.append(
        "images",
-       event.images[0],
+       event.images.file,
      );
  
      axios({
-       url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${event.images[0].uid}`,
+       url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${event.image?.file?.uid}`,
        method: "PUT",
        data: formData,
        headers: {
