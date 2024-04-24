@@ -113,9 +113,8 @@ const Layout = () => {
                 >
                     <Outlet />
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>
-                © Created by LIMSA company 2024
-                </Footer>
+              
+                <p style={{paddingBottom:'20px',textAlign:'center'}}>© Created by LIMSA company 2024</p>
             </AntLayout>
         </AntLayout>
     );
