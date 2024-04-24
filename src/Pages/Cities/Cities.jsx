@@ -183,7 +183,7 @@ const deleteCity = (id) => {
     key: item.id,
     number: index + 1,
     images: (
-      <img style={{ width: "70px", height: '70px', borderRadius: '50%' }} src={`${urlimage}${item.image_src}`} alt="Error" />
+      <img style={{ width: "70px", height: '70px'}} src={`${urlimage}${item.image_src}`} alt="Error" />
     ),
     name: item.name,
     text: item.text,

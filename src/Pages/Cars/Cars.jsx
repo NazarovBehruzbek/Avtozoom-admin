@@ -15,6 +15,7 @@ export default function Cars() {
   const [location, setLocation] = useState([]);
   const [city, setCity] = useState([]);
   const [form] = Form.useForm();
+  const [loading, setloading] = useState(false);
   const showModal = () => {
     setOpen(true);
   };
@@ -28,7 +29,7 @@ export default function Cars() {
         setCars(response?.data?.data);
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
+        console.error("Error fetching cars data:", error);
       });
   };
   const getCategory = () => {
@@ -37,7 +38,7 @@ export default function Cars() {
         setCategory(response?.data?.data);
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
+        console.error("Error fetching cars data:", error);
       });
   };
 
@@ -47,7 +48,7 @@ export default function Cars() {
         setBrand(response?.data?.data);
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
+        console.error("Error fetching cars data:", error);
       });
   };
   const getModel = () => {
@@ -56,7 +57,7 @@ export default function Cars() {
         setModel(response?.data?.data);
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
+        console.error("Error fetching cars data:", error);
       });
   };
   const getLocation = () => {
@@ -65,7 +66,7 @@ export default function Cars() {
         setLocation(response?.data?.data);
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
+        console.error("Error fetching cars data:", error);
       });
   };
   const getCity = () => {
@@ -74,7 +75,7 @@ export default function Cars() {
         setCity(response?.data?.data);
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
+        console.error("Error fetching cars data:", error);
       });
   };
 
@@ -108,30 +109,16 @@ export default function Cars() {
   }
 
   const handleOk = (values) => {
+    setloading(true);
     const formData = new FormData();
     const inclusiveValue = values.inclusive;
-    formData.append('category_id', values.category_id);
     formData.append('brand_id', values.brand_id);
     formData.append('model_id', values.model_id);
     formData.append('city_id', values.city_id);
-    formData.append('location_id', values.location_id);
     formData.append('color', values.color);
     formData.append('year', values.year);
     formData.append('seconds', values.seconds);
-    formData.append('max_speed', values.max_speed);
-    formData.append('max_people', values.max_people);
-    formData.append('transmission', values.transmission);
-    formData.append('motor', values.motor);
-    formData.append('drive_side', values.drive_side);
-    formData.append('petrol', values.petrol);
-    formData.append('limitperday', values.limitperday);
-    formData.append('deposit', values.deposit);
-    formData.append('premium_protection', values.premium_protection);
-    formData.append('price_in_aed', values.price_in_aed);
-    formData.append('price_in_usd', values.price_in_usd);
-    formData.append('price_in_aed_sale', values.price_in_aed_sale);
-    formData.append('price_in_usd_sale', values.price_in_usd_sale);
-    formData.append('inclusive', inclusiveValue ? 'false' : 'true');
+    formData.append('category_id', values.category_id);
     if (values.images1 && values.images1.length > 0) {
       values.images1.forEach((image) => {
         if (image && image.originFileObj) {
@@ -146,6 +133,21 @@ export default function Cars() {
         }
       });
     }
+    formData.append('max_speed', values.max_speed);
+    formData.append('max_people', values.max_people);
+    formData.append('transmission', values.transmission);
+    formData.append('motor', values.motor);
+    formData.append('drive_side', values.drive_side);
+    formData.append('petrol', values.petrol);
+    formData.append('limitperday', values.limitperday);
+    formData.append('deposit', values.deposit);
+    formData.append('premium_protection', values.premium_protection);
+    formData.append('price_in_aed', values.price_in_aed);
+    formData.append('price_in_usd', values.price_in_usd);
+    formData.append('price_in_aed_sale', values.price_in_aed_sale);
+    formData.append('price_in_usd_sale', values.price_in_usd_sale);
+    formData.append('location_id', values.location_id);
+    formData.append('inclusive', inclusiveValue ? 'false' : 'true');
     if (values.cover && values.cover.length > 0) {
       values.cover.forEach((image) => {
         if (image && image.originFileObj) {
@@ -169,17 +171,20 @@ export default function Cars() {
     })
       .then(response => {
         if (response && response.data) {
-          message.success(currentItem ? "City updated successfully" : "City added successfully");
+          message.success(currentItem ? "Cars updated successfully" : "Cars added successfully");
           handleCancel();
           getCars();
         } else {
-          message.error("Failed to save city");
+          message.error("Failed to save cars");
         }
       })
       .catch(error => {
         console.error("Error processing request:", error);
         message.error("An error occurred while processing the request");
-      });
+      })
+      .finally(()=>{
+        setloading(false)
+      })
   };
 
   const columns = [
@@ -205,8 +210,8 @@ export default function Cars() {
     },
     {
       title: 'Kategoriya',
-      dataIndex: 'kategoriya',
-      key: 'model',
+      dataIndex: 'category',
+      key: 'category',
     },
     {
       title: 'Lokatsiya',
@@ -222,9 +227,11 @@ export default function Cars() {
   const dataSource = cars.map((item, index) => ({
     key: item.id,
     number: index + 1,
-    rangi: item.rangi,
-    name: item.name,
-    text: item.text,
+    rangi: item.color,
+    brand: item.brand.title,
+    model: item.model.name,
+    category: item.category.name_en,
+    location: item.location.name,
     action: (
       <>
         <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
@@ -450,7 +457,7 @@ export default function Cars() {
           <Form.Item
             name="inclusive"
             label="Inclusive"
-            style={{ flex: '0 0 33%', paddingRight: '8px' }}
+            style={{ flex: '0 0 15%', paddingRight: '8px' }}
           >
             <Switch defaultChecked />
           </Form.Item>
@@ -460,7 +467,7 @@ export default function Cars() {
             rules={[{ required: true, message: 'Please upload images' }]}
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            style={{ flex: '0 0 33%', paddingRight: '8px' }}
+            style={{ flex: '0 0 25%', paddingRight: '8px' }}
           >
             <Upload
               customRequest={({ onSuccess }) => {
@@ -481,7 +488,7 @@ export default function Cars() {
             rules={[{ required: true, message: 'Please upload the main image' }]}
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            style={{ flex: '0 0 33%', paddingRight: '8px' }}
+            style={{ flex: '0 0 25%', paddingRight: '8px' }}
           >
             <Upload
               customRequest={({ onSuccess }) => {
@@ -502,7 +509,7 @@ export default function Cars() {
             rules={[{ required: true, message: 'Please upload the main image' }]}
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            style={{ flex: '0 0 33%', paddingRight: '8px' }}
+            style={{ flex: '0 0 25%', paddingRight: '8px' }}
           >
             <Upload
               customRequest={({ onSuccess }) => {
@@ -518,7 +525,7 @@ export default function Cars() {
             </Upload>
           </Form.Item>
           <Form.Item style={{ flex: '0 0 100%' }}>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={loading}>
               Save
             </Button>
           </Form.Item>
