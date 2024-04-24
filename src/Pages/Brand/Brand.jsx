@@ -1,191 +1,250 @@
-import React, { useEffect, useState } from 'react'
+import axios from "axios";
+import { useEffect, useState } from "react"
+import {getToken, host, tokenKey, urlimage } from "../Login/Auth/Auth";
+import {Button, Form, Input, message, Modal, Table, Upload} from 'antd'
+import { PlusOutlined } from "@ant-design/icons";
 
-export function Brand() {
-  const [content, setContent] = useState(<BrandList showForm={showForm} />);
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
-  function showList(){
-    setContent(<BrandList showForm={showForm} />);
+
+export default function Brand() {
+  const [brands, setBrands] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [form] = Form.useForm();
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  // const handleOk = () => {
+  //   setIsModalOpen(false);
+  //   setCurrentItem(null);
+  // };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setCurrentItem(null);
+  };
+  const getBrands =()=>{
+    axios.get(`${host}/brands`).then((res)=>{     
+      setBrands(res.data.data)
+    }).catch((error)=>{
+      console.log(error);
+    })
   }
-  function showForm(brand){
-    setContent(<BrandForm brand={brand} showForm={showList} />);
+  const authToken = getToken(tokenKey);
+  useEffect(()=>{
+    getBrands();
+  },[])
+
+    // Handle form submission
+    const handleOk = (values) => {
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('text', values.text);
+  
+      if (values.images && values.images.length > 0) {
+          values.images.forEach((image) => {
+              if (image && image.originFileObj) {
+                  formData.append('images', image.originFileObj, image.name);
+              }
+          });
+      }
+  
+      const url = currentItem ? `${host}/cities/${currentItem.id}` : `${host}/cities`;
+      const method = currentItem ? 'PUT' : 'POST';
+      const authToken = getToken(tokenKey);
+  
+      axios({
+          url: url,
+          method: method,
+          data: formData,
+          headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'multipart/form-data',
+          },
+      })
+          .then(response => {
+              if (response && response.data) {
+                  message.success(currentItem ? "City updated successfully" : "City added successfully");
+                  handleCancel();
+                  getBrands();
+              } else {
+                  message.error("Failed to save city");
+              }
+          })
+          .catch(error => {
+              console.error("Error processing request:", error);
+              message.error("An error occurred while processing the request");
+          });
+  };
+
+
+   // Function to prepare data for editing
+   const editModal = (item) => {
+    setIsModalOpen(true);
+    form.setFieldsValue({
+        name: item.name,
+        text: item.text,
+        images: [{ uid: item.id, name: 'image', status: 'done', url: `${urlimage}${item.image_src}` }], 
+    });
+    setCurrentItem(item);
+};
+
+
+  // Delete function 
+  const deleteCity = (id) => {
+  const authToken = getToken(tokenKey);
+  const config = {
+      headers: {
+          'Authorization': `Bearer ${authToken}`
+      }
+  }
+  Modal.confirm({
+      title: 'Are you sure you want to delete this user?',
+      icon: <ExclamationCircleOutlined/>,
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk() {
+          axios.delete(`${host}/cities/${id}`, config)
+              .then(res => {
+                  if (res && res.data.success) {
+                      message.success("User deleted successfully");
+                      getBrands()
+                  } else {
+                      message.error("Failed to delete user");
+                  }
+              })
+              .catch(error => {
+                  console.error("Error deleting user:", error);
+                  message.error("An error occurred while deleting user");
+              });
+      },
+      onCancel() {
+          console.log("Deletion canceled");
+      },
+  });
+};
+
+
+  const columns = [
+    {
+      title: 'Number',
+      dataIndex: 'number',
+      key: 'number',
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Images',
+      dataIndex: 'images',
+      key: 'images',
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+    }
+  ];
+
+     // Image file validation
+     const beforeUpload = (file) => {
+      const allowedExtensions = ['jpg', 'jpeg', 'png'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const isValidFile = allowedExtensions.includes(fileExtension);
+  
+      if (!isValidFile) {
+          message.error('You can only upload JPG/JPEG/PNG files!');
+      }
+  
+      return isValidFile;
+  };
+  
+  // Handle file upload events
+  const normFile = (e) => {
+      if (Array.isArray(e)) {
+          return e;
+      }
+      return e && e.fileList;
+  };
+
+  const dataSource = brands.map((item,index) => ({
+    key:item.id,
+    number:index+1,
+    name:item.title,
+    images:(
+      <img style={{width:'100px'}} src={`${urlimage}${item.image_src}`} alt={item.title} />
+    ),
+    action: (
+      <>
+        <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
+        <Button type="primary" danger onClick={()=>deleteCity(item.id)}>Delete</Button>
+      </>
+    )
+  }))
+
+  const HandleAdd = (values) =>{
+    const authToken = localStorage.getItem(tokenKey)
+    const formData = new FormData();
+    formData.append('title',values.name);   
+    if (values.images && values.images.length > 0) {
+      values.images.forEach((image) => {
+          if (image && image.originFileObj) {
+              formData.append('images', image.originFileObj, image.name);
+          }
+      });
+  }
+  axios({
+    url:`${host}/brands`,
+    method:"POST",
+    data:formData,
+    headers:{
+      'Authorization': `Bearer ${authToken}`,
+    }
+  }).then(res=>{
+    getBrands()
+    setIsModalOpen(false)
+    form.resetFields();
+    message.success("Qo'shildi")
+
+  }).catch(err=>{
+    message.error("Xatolik")
+  })
   }
 
   return (
-    <div>Brand</div>
-  )
-}
-
-function BrandList(props) {
-
-  const [brands, setBrands] = useState([])
-  function fetchBrands(){
-    fetch("http://localhost:3000/brands")
-    .then((response) => {
-      if(!response.ok){
-          throw new Error("Unexpected Server Response");
-      }
-      return response.json()
-    })
-    .then((data) => {
-      setBrands(data);
-    })
-    .catch((error) =>  console.log("Error: ", error));
-  }
-
-  // fetchBrands();
-  useEffect(() => fetchBrands(), []);
-
-
-  function deleteBrand(id){
-    fetch('http://localhost:3000/brands' + id, {
-      method: 'DELETE'
-    })
-      .then((response) => response.json())
-      .then((data) => fetchBrands());
-  }
-  return(
-    <>
-      <h2>List of Brand</h2>
-      <button onClick={() => props.showForm({})} type='button'> Create</button>
-      <button onClick={() => fetchBrands()} type='button'> Refresh</button>
+    <div>
+      <h1>Brand</h1>
+      <Button onClick={showModal} type="primary">Add</Button>
+      <Table dataSource={dataSource} columns={columns} />
+      <Modal title="Basic Modal" open={isModalOpen} onCancel={handleCancel} footer={null}>
+      <Form form={form} name="validateOnly" onFinish={handleOk} layout="vertical" autoComplete="off" onFinish={HandleAdd} >
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Upload Image" name="images" valuePropName="fileList" getValueFromEvent={normFile} rules={[{ required: true, message: 'Please upload an image' }]}>
+            <Upload
+              customRequest={({ onSuccess }) => {
+                onSuccess("ok")
+              }}
+              beforeUpload={beforeUpload}
+              listType="picture-card"
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            </Upload>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Save
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
   
-      <table className="table table-striped table-dark">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">First</th>
-            <th scope="col">Last</th>
-            <th scope="col">Handle</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            brands.map((brand, index) => {
-              return(
-                <tr key={index}>
-                  <td>{brand.id}</td>
-                  <td>{brand.name}</td>
-                  
-                  <td style={{width:"10px"}}>
-                    <button onClick={() => props.showForm(brand)} type='button' className='btn btn-primary btn-sm me-2'>Edit</button>
-                    <button onClick={() => deleteBrand(brand.id)} type='button' className='btn btn-danger btn-sm'>Delete</button>
-                  </td>
-                </tr>
-              );
-            })
-          }
-        </tbody>
-      </table>
-    </>
-  )
-}
-
-function BrandForm(props) {
-
-  const [errorMessage, setErrorMessage] = useState("");
-
-  function handleSubmit(event){
-    event.preventDefault();
-
-    // read from data
-    const formData = new FormData(event.target)
-    
-    // convert formData to object
-    const brand = Object.fromEntries(formData.entries());
-
-    if(!brand.name || !brand.brand){
-      console.log("please provide all the required fields!");
-      setErrorMessage(
-        <div className='alert alert-warning' role='alert'>
-          please provide all the required fields!
-        </div>
-      )
-      return;
-    }
-
-    if(props.brand.id) {
-      fetch("https://localhost:3000/brands/"  + props.brand.id , {
-        method: "PATCH",
-        headers:{
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(brand)
-      })
-        .then((response) =>{
-          if(!response.ok){
-            throw new Error("Network response was not OK");
-          }
-          return response.json()
-        })
-        .then((data) => props.showList())
-        .catch((error) => {
-          console.error("Error:", error);
-        })
-    } 
-    else{
-      // create a new product 
-      brand.createdAt = new Date().toISOString().slice(0,10);
-      fetch("https://localhost:3000/brands", {
-        method: "POST",
-        headers:{
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(brand)
-      })
-        .then((response) =>{
-          if(!response.ok){
-            throw new Error("Network response was not OK");
-          }
-          return response.json()
-        })
-        .then((data) => props.showList())
-        .catch((error) => {
-          console.error("Error:", error);
-        })
-    }
-  }
-
-  return(
-    <>
-      <h2>{props.brand.id ? "Edit Brand" : "Create New Brand"}</h2>
-      <button onClick={() => props.showList()} type='button'> Cancel</button>
-
-      <div className='row'>
-        <div className="col-lg-6">
-
-          {errorMessage}
-
-          <form onSubmit={(event) => handleSubmit(event)}>
-          {props.brand.id &&  <div className='row mb-3'>
-            <label className='col-sm-4 col-form-label'>ID</label>
-            <div className="col-sm-8">
-              <input readOnly type="text" 
-              className='form-control-plaintext'
-              name='id'
-              defaultValue={props.brand.id}/>
-            </div> </div>}
-
-            <div className='row mb-3'>
-              <label className='col-sm-4 col-form-label'>Name</label>
-              <div className="col-sm-8">
-                <input type="text" 
-                className='form-control'
-                name='name'
-                defaultValue={props.brand.name}/>
-              </div>
-            </div>            
-
-            <div className="row">
-                <div className="offset-sm-4">
-                  <button onClick={() => props.showForm(brand)} type='submit' className='btn btn-primary'>Save</button>
-                </div>
-                <div className="col-sm-4">
-                  <button onClick={() => props.showList()} type='button' className='btn btn-secondary me-2'>Cancel</button>
-                </div>
-              </div>
-          </form>
-        </div>
-      </div>
-    </>
+    </div>
   )
 }

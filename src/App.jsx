@@ -3,7 +3,6 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { getToken, tokenKey } from "./Pages/Login/Auth/Auth";
 import Layout from "./Pages/Layout/Layout";
 import Login from "./Pages/Login/Login";
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const navigate = useNavigate();
