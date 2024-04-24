@@ -8,10 +8,11 @@ import { urlimage } from "../Login/Auth/Auth";
 export default function Categories() {
   const [dataCars, setDateCars] = React.useState([]);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [imageSrc, setImageSrc] = React.useState(false);
 
   const [form] = Form.useForm();
   const [form1] = Form.useForm();
-  const [id, setId] = useState(null)
+  const [id, setId] = useState(null);
   const MyFormItemContext = React.createContext([]);
   function toArr(str) {
     return Array.isArray(str) ? str : [str];
@@ -63,10 +64,8 @@ export default function Categories() {
       .then((response) => setDateCars(response?.data?.data));
   };
 
-
-
   const handleOk = (event) => {
-    console.log("Handle OK---",event);
+    console.log("Handle OK---", event);
     const formData = new FormData();
     formData.append("name_en", event.user.name.name_uz);
     formData.append("name_ru", event.user.name.name_ru);
@@ -137,37 +136,52 @@ export default function Categories() {
 
   const [isModalEditOpen, setIsModalEditOpen] = React.useState(false);
   const showEditModal = (item) => {
-    setId(item.id)
+    setId(item.id);
+    setImageSrc(item.image_src);
+    console.log("ShoweditModl --- ", item);
     setIsModalEditOpen(true);
     form.setFieldsValue({
       name_uz: item.name_en,
       name_ru: item.name_ru,
-      images1: [{ uid: item.id, name: 'image', status: 'done', url: `${urlimage}${item.image_src}` }], 
-  });
+      images1: [
+        {
+          uid: item.id,
+          name: "image",
+          status: "done",
+          url: `${urlimage}${item.image_src}`,
+        },
+      ],
+    });
   };
   const handleEditOk = (event) => {
-     const formData = new FormData();
-     formData.append("name_en", event.name_uz);
-     formData.append("name_ru", event.name_ru);
-     console.log("uz--", event.name_uz);
-     console.log("ru--",event.name_ru);
-     console.log("Img--", event.images[0].uid);
-     formData.append(
-       "images",
-       event.images[0],
-     );
- 
-     axios({
-       url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${event.images[0].uid}`,
-       method: "PUT",
-       data: formData,
-       headers: {
-         Authorization: `Bearer ${localStorage.getItem("new_token")}`,
-         "Content-Type": "multipart/form-data",
-       },
-     }).then((response) => {
-        console.log("Response--- ",response);
-     });
+    const formData1 = new FormData();
+    console.log("Event --- ", event);
+    formData1.append("name_en", event.name_uz);
+    formData1.append("name_ru", event.name_ru);
+    if (event.images && event.images.length >= 0) {
+      event.images.forEach((image) => {
+        if (image && image.originFileObj) {
+          formData1.append("images", image.originFileObj, image.name);
+        }
+      });
+    }
+    axios({
+      url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${id}`,
+      method: "PUT",
+      data: formData1,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("new_token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }).then((response) => {
+      if (response?.status == 200) {
+        setIsModalEditOpen(false)
+        message.success("Car Editted successfully");
+        getItems();
+      } else {
+        message.error("Respose is bed, Try Again");
+      }
+    });
   };
   const handleEditCancel = () => {
     setIsModalEditOpen(false);
@@ -254,7 +268,10 @@ export default function Categories() {
           {dataCars.map((item, i) => (
             <div className="categories_item" key={i}>
               <img src={`${urlimage}${item.image_src}`} alt="img" />
-              <h5>{item.name_en}</h5>
+              <div className="categories_titles">
+                <h5>{item.name_en}</h5>
+                <h5>{item.name_ru}</h5>
+              </div>
               <div className="categories_item-btn">
                 <Button
                   type="primary"
@@ -266,13 +283,13 @@ export default function Categories() {
                 <Modal
                   title="Edit Modal"
                   open={isModalEditOpen}
-                  onCancel={handleEditCancel}
                   footer={null}
                   style={{ opacity: "gray" }}
                 >
                   <Form
                     name="basic"
                     onFinish={handleEditOk}
+                    onCancel={handleEditCancel}
                     labelCol={{
                       span: 8,
                     }}
