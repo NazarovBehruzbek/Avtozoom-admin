@@ -14,6 +14,7 @@ import {
 import { Button, Layout as AntLayout, Menu } from 'antd';
 import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { deleteLocalStorage, tokenKey } from '../Login/Auth/Auth';
+import logo from "../../assets/logo.svg"
 const { Header, Sider, Content, Footer } = AntLayout;
 
 const Layout = () => {
@@ -64,10 +65,10 @@ const Layout = () => {
     ];
     const currentMenuKey = menuItems.find(item => location.pathname === item.label.props.to)?.key;
     return (
-        <AntLayout>
+        <AntLayout style={{height:'100vh'}}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className="demo-logo-vertical" style={{ padding: '20px', color: '#fff' }}>
-                    AVTOZOOM
+                    <img style={{width:"80%",height:'40px'}} src={logo} alt="Autoozom" />
                 </div>
                 <Menu theme="dark" mode="inline"   defaultSelectedKeys={[currentMenuKey]} items={menuItems} style={{ marginTop: '20px' }} />
             </Sider>
@@ -107,13 +108,13 @@ const Layout = () => {
                         minHeight: 280,
                         background: '#fff',
                         borderRadius: '8px',
+                        overflowY: 'scroll'
                     }}
                 >
                     <Outlet />
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>
-                © Created by LIMSA company 2024
-                </Footer>
+              
+                <p style={{paddingBottom:'20px',textAlign:'center'}}>© Created by LIMSA company 2024</p>
             </AntLayout>
         </AntLayout>
     );
