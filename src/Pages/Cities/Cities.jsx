@@ -10,7 +10,7 @@ export default function Cities() {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
   const getData = () => {
     axios.get(`${host}/cities`)
       .then(response => {
