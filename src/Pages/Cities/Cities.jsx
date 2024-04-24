@@ -10,7 +10,7 @@ export default function Cities() {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
-  
+  const [loading, setLoading] = useState(false)
   const getData = () => {
     axios.get(`${host}/cities`)
       .then(response => {
@@ -38,6 +38,7 @@ export default function Cities() {
 
   // Handle form submission
   const handleOk = (values) => {
+    setLoading(true)
     const formData = new FormData();
     formData.append('name', values.name);
     formData.append('text', values.text);
@@ -75,7 +76,10 @@ export default function Cities() {
         .catch(error => {
             console.error("Error processing request:", error);
             message.error("An error occurred while processing the request");
-        });
+        })
+        .finally(() => {
+          setLoading(false); 
+      });
 };
 
  // Function to prepare data for editing
@@ -124,6 +128,7 @@ const deleteCity = (id) => {
       okText: 'Yes',
       cancelText: 'No',
       onOk() {
+        setLoading(true)
           axios.delete(`${host}/cities/${id}`, config)
               .then(res => {
                   if (res && res.data.success) {
@@ -136,7 +141,10 @@ const deleteCity = (id) => {
               .catch(error => {
                   console.error("Error deleting user:", error);
                   message.error("An error occurred while deleting user");
-              });
+              })
+              .finally(() => {
+                setLoading(false); 
+            });
       },
       onCancel() {
           console.log("Deletion canceled");
@@ -194,7 +202,7 @@ const deleteCity = (id) => {
         <Button type='primary' onClick={showModal}>Add cities</Button>
       </div>
       <Table dataSource={dataSource} columns={columns} />
-      <Modal title="Add" open={isModalOpen} onCancel={handleCancel} footer={null}>
+      <Modal title={currentItem?"Tahrirlash":"Qo'shish"} open={isModalOpen} onCancel={handleCancel} footer={null}>
         <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onFinish={handleOk}>
           <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
             <Input />

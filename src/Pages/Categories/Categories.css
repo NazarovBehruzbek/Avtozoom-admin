@@ -1,0 +1,70 @@
+.categories {
+    .categories_box {
+        .categories_btn {
+            & button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 30px;
+                width: 60px;
+                color: #fff;
+                background-color: #02284bd0;
+                border-radius: 5px;
+                cursor: pointer;
+                border: none;
+            }
+        }
+
+        .categories_items {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            gap: 20px;
+
+            .categories_item {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                width: 100%;
+                & img {
+                    height: 150px;
+                    width: 250px;
+                    box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+                }
+
+                & h5 {
+                    text-align: center;
+                    width: 350px;
+                    font-size: 36px;
+                    color: rgb(100, 99, 99);
+                }
+                .categories_item-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    & button{
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 25px;
+                        width: 60px;
+                        color: #fff;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        border: none;
+                    }
+                    & button:nth-child(1){
+                        background-color: rgba(67, 67, 246, 0.854);
+                    }
+                    & button:nth-child(2){
+                        background-color: rgba(246, 57, 57, 0.642);
+                    }
+                }
+            }
+        }
+    }
+}
+.ant-modal-wrap{
+    background-color:rgba(88, 88, 88, 1%);
+}
