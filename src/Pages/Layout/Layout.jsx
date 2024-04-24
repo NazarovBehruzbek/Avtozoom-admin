@@ -65,7 +65,7 @@ const Layout = () => {
     ];
     const currentMenuKey = menuItems.find(item => location.pathname === item.label.props.to)?.key;
     return (
-        <AntLayout>
+        <AntLayout style={{height:'100vh'}}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className="demo-logo-vertical" style={{ padding: '20px', color: '#fff' }}>
                     <img style={{width:"80%",height:'40px'}} src={logo} alt="Autoozom" />
@@ -108,6 +108,7 @@ const Layout = () => {
                         minHeight: 280,
                         background: '#fff',
                         borderRadius: '8px',
+                        overflowY: 'scroll'
                     }}
                 >
                     <Outlet />
