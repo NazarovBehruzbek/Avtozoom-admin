@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form, Image, Modal, Input, Upload, message } from "antd";
 import { ExclamationCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import "./Categories.css";
+import { urlimage } from "../Login/Auth/Auth";
 
 export default function Categories() {
   const [dataCars, setDateCars] = React.useState([]);
@@ -10,6 +11,7 @@ export default function Categories() {
 
   const [form] = Form.useForm();
   const [form1] = Form.useForm();
+  const [id, setId] = useState(null)
   const MyFormItemContext = React.createContext([]);
   function toArr(str) {
     return Array.isArray(str) ? str : [str];
@@ -68,9 +70,6 @@ export default function Categories() {
     const formData = new FormData();
     formData.append("name_en", event.user.name.name_uz);
     formData.append("name_ru", event.user.name.name_ru);
-    // console.log("uz--", event.user.name.name_uz);
-    // console.log("ru--",event.user.name.name_ru);
-    // console.log("Img--", event.user.images[0]);
     formData.append(
       "images",
       event.user.images[0].originFileObj,
@@ -137,42 +136,22 @@ export default function Categories() {
   // Edit function  things.............................
 
   const [isModalEditOpen, setIsModalEditOpen] = React.useState(false);
-  // const onEditFinish = (values) => {
-  //   console.log("Success:", values);
-  // };
-  // const onEditFinishFailed = (errorInfo) => {
-  //   console.log("Failed:", errorInfo);
-  // };
   const showEditModal = (item) => {
+    setId(item.id)
     setIsModalEditOpen(true);
     form.setFieldsValue({
       name_uz: item.name_en,
       name_ru: item.name_ru,
-      images: [
-        {
-          uid: item.id,
-          name: "image",
-          status: "done",
-          url: `${urlimage}${item.image_src}`,
-        },
-      ],
-    });
+      images1: [{ uid: item.id, name: 'image', status: 'done', url: `${urlimage}${item.image_src}` }], 
+  });
   };
   const handleEditOk = (event) => {
      const formData = new FormData();
-     console.log(event);
      formData.append("name_en", event.name_uz);
      formData.append("name_ru", event.name_ru);
-     console.log("uz--", event.name_uz);
-     console.log("ru--",event.name_ru);
-     console.log("Img--", event.images[0].uid);
-     formData.append(
-       "images",
-       event.images[0],
-     );
- 
+     formData.append('title', values.name);
      axios({
-       url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${event.images[0].uid}`,
+       url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${id}`,
        method: "PUT",
        data: formData,
        headers: {
@@ -181,14 +160,6 @@ export default function Categories() {
        },
      }).then((response) => {
         console.log("Response--- ",response);
-      //  if (response?.status == 201) {
-      //    setIsModalOpen(false);
-      //    message.success("Car added successfully");
-      //    getItems();
-      //    handleCancel(false);
-      //  } else {
-      //    message.error("Respose is bed, Try Again");
-      //  }
      });
   };
   const handleEditCancel = () => {
@@ -198,8 +169,6 @@ export default function Categories() {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const urlimage =
-    "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
 
   React.useEffect(() => {
     getItems();
@@ -339,13 +308,15 @@ export default function Categories() {
                     </Form.Item>
                     <Form.Item
                       label="Change Image"
-                      name="images"
+                      name="images1"
                       rules={[
                         {
                           required: true,
                           message: "Please input Car Images!",
                         },
                       ]}
+                      valuePropName="fileList"
+                      getValueFromEvent={normFile}
                     >
                       <Upload
                         customRequest={({ onSuccess }) => {

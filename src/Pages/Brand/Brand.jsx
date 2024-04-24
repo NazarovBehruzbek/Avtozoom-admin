@@ -25,7 +25,7 @@ export default function Brand() {
     }).catch((error) => {
       console.log(error);
     });
-  };
+  };    
 
   useEffect(() => {
     getBrands();
