@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import Login from "./../Pages/Login/Login";
-import Dashboard from "../Pages/Dashboard/Dashboard";
 import Brand from "./../Pages/Brand/Brand";
 import Categories from "./../Pages/Categories/Categories"
 import Cities from "./../Pages/Cities/Cities"
@@ -16,10 +15,6 @@ const router = createBrowserRouter([
     element: <App />, 
     children: [
       {
-        path: "/", 
-        element: <Dashboard />,
-      },
-      {
         path: "/login",
         element: <Login />,
       },
@@ -28,7 +23,7 @@ const router = createBrowserRouter([
         element: <Brand />,
       },
       {
-        path: "/categories",
+        path: "/",
         element: <Categories/>,
       },
       {

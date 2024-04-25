@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { getToken, host, tokenKey, urlimage } from '../Login/Auth/Auth';
 import { Button, Table, Form, Modal, Input, Upload, message, Select, Switch } from 'antd';
 import "./style.css"
-import { PlusOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
 export default function Cars() {
   const [open, setOpen] = useState(false);
@@ -186,6 +186,42 @@ export default function Cars() {
         setloading(false)
       })
   };
+  const deleteCars = (id) => {
+    const authToken = getToken(tokenKey);
+    const config = {
+        headers: {
+            'Authorization': `Bearer ${authToken}`
+        }
+    }
+    Modal.confirm({
+        title: 'Are you sure you want to delete this cars?',
+        icon: <ExclamationCircleOutlined/>,
+        okText: 'Yes',
+        cancelText: 'No',
+        onOk() {
+          setloading(true)
+            axios.delete(`${host}/cars/${id}`, config)
+                .then(res => {
+                    if (res && res.data.success) {
+                        message.success("Cars deleted successfully");
+                       getCars()
+                    } else {
+                        message.error("Failed to delete cars");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting cars:", error);
+                    message.error("An error occurred while deleting cars");
+                })
+                .finally(()=>{
+                  setloading(false)
+                })
+        },
+        onCancel() {
+            console.log("Deletion canceled");
+        },
+    });
+  };
 
   const columns = [
     {
@@ -235,7 +271,7 @@ export default function Cars() {
     action: (
       <>
         <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
-        <Button type="primary" danger onClick={() => deleteCity(item.id)}>Delete</Button>
+        <Button type="primary" danger onClick={() => deleteCars(item.id)}>Delete</Button>
       </>
     )
   }));
