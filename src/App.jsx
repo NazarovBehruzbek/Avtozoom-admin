@@ -1,18 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { getToken, tokenKey } from "./Pages/Login/Auth/Auth";
+import { getToken, host, tokenKey } from "./Pages/Login/Auth/Auth";
 import Layout from "./Pages/Layout/Layout";
 import Login from "./Pages/Login/Login";
 
 function App() {
   const navigate = useNavigate();
-  const token = getToken(tokenKey);
-
+  const token = localStorage.getItem(tokenKey)
+  console.log(token);
   useEffect(() => {
       if (!token) {
           navigate("/login");
       }
-  }, [navigate, token]);
+  }, [token]);
 
   return token ? <Layout><Outlet /></Layout> : <Login />; 
 }
