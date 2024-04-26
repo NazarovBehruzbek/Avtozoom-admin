@@ -16,6 +16,7 @@ export default function Cars() {
   const [city, setCity] = useState([]);
   const [form] = Form.useForm();
   const [loading, setloading] = useState(false);
+  const [inclusive, setInclusive] = useState(false);
   const showModal = () => {
     setOpen(true);
     form.resetFields();
@@ -26,10 +27,11 @@ export default function Cars() {
     setCurrentItem(null);
   };
   const getCars = () => {
+    setloading(true)
     axios.get(`${host}/cars`)
       .then(response => {
         setCars(response?.data?.data);
-        console.log(cars);
+        setloading(false)
       })
       .catch(error => {
         console.error("Error fetching cars data:", error);
@@ -114,7 +116,6 @@ export default function Cars() {
   const handleOk = (values) => {
     setloading(true);
     const formData = new FormData();
-    const inclusiveValue = values.inclusive;
     formData.append('brand_id', values.brand_id);
     formData.append('model_id', values.model_id);
     formData.append('city_id', values.city_id);
@@ -150,7 +151,7 @@ export default function Cars() {
     formData.append('price_in_aed_sale', values.price_in_aed_sale);
     formData.append('price_in_usd_sale', values.price_in_usd_sale);
     formData.append('location_id', values.location_id);
-    formData.append('inclusive', inclusiveValue ? 'false' : 'true');
+    formData.append('inclusive', inclusive);
     if (values.cover && values.cover.length > 0) {
       values.cover.forEach((image) => {
         if (image && image.originFileObj) {
@@ -315,7 +316,7 @@ export default function Cars() {
         <h2>Cars</h2>
         <Button type='primary' onClick={showModal}>Add Cars</Button>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table dataSource={dataSource} columns={columns} loading={loading}/>
       <Modal
         title={currentItem ? "Tahrirlash" : "Cars Qo'shish"}
         footer={null}
@@ -524,12 +525,14 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="inclusive"
-            label="Inclusive"
-            style={{ flex: '0 0 15%', paddingRight: '8px' }}
-          >
-            <Switch defaultChecked />
-          </Form.Item>
+        name="inclusive"
+        label="Inclusive"
+        style={{ flex: '0 0 15%', paddingRight: '8px' }}
+        initialValue={inclusive} 
+        valuePropName="checked"
+      >
+        <Switch onChange={(checked) => setInclusive(checked)} /> 
+      </Form.Item>
           {
             !currentItem ? (
               <>

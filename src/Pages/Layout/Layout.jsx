@@ -103,7 +103,7 @@ const Layout = () => {
                         minHeight: 280,
                         background: '#fff',
                         borderRadius: '8px',
-                        overflowY: 'scroll'
+                        overflow: 'scroll'
                     }}
                 >
                     <Outlet />

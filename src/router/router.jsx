@@ -7,12 +7,14 @@ import Cities from "./../Pages/Cities/Cities"
 import Locations from "./../Pages/Locations/Locations"
 import Cars from "../Pages/Cars/Cars";
 import Models from "./../Pages/Models/Models"
+import Error from "../Pages/Error/Error";
 
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />, 
+    errorElement: <Error/>,
     children: [
       {
         path: "/login",
