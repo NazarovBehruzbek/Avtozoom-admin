@@ -11,10 +11,13 @@ export default function Cities() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const [loading, setLoading] = useState(false)
+
   const getData = () => {
+    setLoading(true)
     axios.get(`${host}/cities`)
       .then(response => {
         setCities(response.data.data);
+        setLoading(false)
       })
       .catch(error => {
         console.error("Error fetching cities data:", error);
@@ -201,7 +204,7 @@ const deleteCity = (id) => {
         <h2>Cities</h2>
         <Button type='primary' onClick={showModal}>Add cities</Button>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table dataSource={dataSource} columns={columns} loading={loading}/>
       <Modal title={currentItem?"Tahrirlash":"Qo'shish"} open={isModalOpen} onCancel={handleCancel} footer={null}>
         <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onFinish={handleOk}>
           <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>

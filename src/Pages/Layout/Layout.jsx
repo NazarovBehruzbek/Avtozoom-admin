@@ -29,36 +29,31 @@ const Layout = () => {
     const menuItems = [
         {
             key: '1',
-            icon: <HomeOutlined />,
-            label: <NavLink to="/">Dashboard</NavLink>,
+            icon: <UnorderedListOutlined />,
+            label: <NavLink to="/">Categories</NavLink>,
         },
         {
             key: '2',
-            icon: <UnorderedListOutlined />,
-            label: <NavLink to="/categories">Categories</NavLink>,
-        },
-        {
-            key: '3',
             icon: <FileDoneOutlined />,
             label: <NavLink to="/brand">Brands</NavLink>,
         },
         {
-            key: '4',
+            key: '3',
             icon: <OpenAIOutlined />,
             label: <NavLink to="/cities">Cities</NavLink>,
         },
         {
-            key: '5',
+            key: '4',
             icon: <EnvironmentOutlined />,
             label: <NavLink to="/locations">Locations</NavLink>,
         },
         {
-            key: '6',
+            key: '5',
             icon: <CarOutlined />,
             label: <NavLink to="/cars">Cars</NavLink>,
         },
         {
-            key: '7',
+            key: '6',
             icon: <TableOutlined />,
             label: <NavLink to="/models">Models</NavLink>,
         },
@@ -108,7 +103,7 @@ const Layout = () => {
                         minHeight: 280,
                         background: '#fff',
                         borderRadius: '8px',
-                        overflowY: 'scroll'
+                        overflow: 'scroll'
                     }}
                 >
                     <Outlet />

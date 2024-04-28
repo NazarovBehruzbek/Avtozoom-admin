@@ -23,9 +23,11 @@ export default function Models() {
   };
 
   const getBrands = () => {
+    setLoading(true)
     axios.get(`${host}/brands`)
       .then(response => {
         setBrands(response?.data?.data || []);
+        setLoading(false)
       })
       .catch(error => {
         console.error("Error fetching brands data:", error);
@@ -172,7 +174,7 @@ export default function Models() {
         <h2>Models</h2>
         <Button type='primary' onClick={showModal}>Add Model</Button>
       </div>
-      <Table columns={columns} dataSource={dataSource}/>
+      <Table columns={columns} dataSource={dataSource} loading={loading}/>
       <Modal title={currentItem ? "Edit" : "Add"} visible={open} onCancel={handleCancel} footer={null}>
         <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onFinish={handleOk}>
           <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>

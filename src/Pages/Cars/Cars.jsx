@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { getToken, host, tokenKey, urlimage } from '../Login/Auth/Auth';
 import { Button, Table, Form, Modal, Input, Upload, message, Select, Switch } from 'antd';
 import "./style.css"
-import { PlusOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
 export default function Cars() {
   const [open, setOpen] = useState(false);
@@ -16,17 +16,22 @@ export default function Cars() {
   const [city, setCity] = useState([]);
   const [form] = Form.useForm();
   const [loading, setloading] = useState(false);
+  const [inclusive, setInclusive] = useState(false);
   const showModal = () => {
     setOpen(true);
+    form.resetFields();
+    setCurrentItem(null);
   };
   const handleCancel = () => {
     setOpen(false);
     setCurrentItem(null);
   };
   const getCars = () => {
+    setloading(true)
     axios.get(`${host}/cars`)
       .then(response => {
         setCars(response?.data?.data);
+        setloading(false)
       })
       .catch(error => {
         console.error("Error fetching cars data:", error);
@@ -111,7 +116,6 @@ export default function Cars() {
   const handleOk = (values) => {
     setloading(true);
     const formData = new FormData();
-    const inclusiveValue = values.inclusive;
     formData.append('brand_id', values.brand_id);
     formData.append('model_id', values.model_id);
     formData.append('city_id', values.city_id);
@@ -147,7 +151,7 @@ export default function Cars() {
     formData.append('price_in_aed_sale', values.price_in_aed_sale);
     formData.append('price_in_usd_sale', values.price_in_usd_sale);
     formData.append('location_id', values.location_id);
-    formData.append('inclusive', inclusiveValue ? 'false' : 'true');
+    formData.append('inclusive', inclusive);
     if (values.cover && values.cover.length > 0) {
       values.cover.forEach((image) => {
         if (image && image.originFileObj) {
@@ -174,6 +178,8 @@ export default function Cars() {
           message.success(currentItem ? "Cars updated successfully" : "Cars added successfully");
           handleCancel();
           getCars();
+          form.resetFields();
+          setCurrentItem(null);
         } else {
           message.error("Failed to save cars");
         }
@@ -182,9 +188,73 @@ export default function Cars() {
         console.error("Error processing request:", error);
         message.error("An error occurred while processing the request");
       })
-      .finally(()=>{
+      .finally(() => {
         setloading(false)
       })
+  };
+  const editModal = (item) => {
+    setOpen(true);
+    form.setFieldsValue({
+      brand_id: item.brand_id,
+      model_id: item.model_id,
+      city_id: item.city_id,
+      color: item.color,
+      year: item.year,
+      seconds: item.seconds,
+      category_id: item.category_id,
+      max_speed: item.max_speed,
+      max_people: item.max_people,
+      transmission: item.transmission,
+      motor: item.motor,
+      drive_side: item.drive_side,
+      petrol: item.petrol,
+      limitperday: item.limitperday,
+      deposit: item.deposit,
+      premium_protection: item.premium_protection,
+      price_in_aed: item.price_in_aed,
+      price_in_usd: item.price_in_usd,
+      price_in_aed_sale: item.price_in_aed_sale,
+      price_in_usd_sale: item.price_in_usd_sale,
+      location_id: item.location_id,
+      inclusive: item.inclusive,
+    });
+    setCurrentItem(item);
+  };
+  const deleteCars = (id) => {
+    const authToken = getToken(tokenKey);
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    }
+    Modal.confirm({
+      title: 'Are you sure you want to delete this cars?',
+      icon: <ExclamationCircleOutlined />,
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk() {
+        setloading(true)
+        axios.delete(`${host}/cars/${id}`, config)
+          .then(res => {
+            if (res && res.data.success) {
+              message.success("Cars deleted successfully");
+              getCars()
+            } else {
+              message.error("Failed to delete cars");
+            }
+          })
+          .catch(error => {
+            console.error("Error deleting cars:", error);
+            message.error("An error occurred while deleting cars");
+          })
+          .finally(() => {
+            setloading(false)
+          })
+      },
+      onCancel() {
+        console.log("Deletion canceled");
+      },
+    });
   };
 
   const columns = [
@@ -235,7 +305,7 @@ export default function Cars() {
     action: (
       <>
         <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
-        <Button type="primary" danger onClick={() => deleteCity(item.id)}>Delete</Button>
+        <Button type="primary" danger onClick={() => deleteCars(item.id)}>Delete</Button>
       </>
     )
   }));
@@ -244,11 +314,11 @@ export default function Cars() {
     <div>
       <div className="all-pages">
         <h2>Cars</h2>
-        <Button type='primary' onClick={showModal}>Add cities</Button>
+        <Button type='primary' onClick={showModal}>Add Cars</Button>
       </div>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table dataSource={dataSource} columns={columns} loading={loading}/>
       <Modal
-        title="Cars qo'shish"
+        title={currentItem ? "Tahrirlash" : "Cars Qo'shish"}
         footer={null}
         open={open}
         onOk={() => setOpen(false)}
@@ -455,82 +525,89 @@ export default function Cars() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="inclusive"
-            label="Inclusive"
-            style={{ flex: '0 0 15%', paddingRight: '8px' }}
-          >
-            <Switch defaultChecked />
-          </Form.Item>
-          <Form.Item
-            name="images1"
-            label="Upload car images"
-            rules={[{ required: true, message: 'Please upload images' }]}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            style={{ flex: '0 0 25%', paddingRight: '8px' }}
-          >
-            <Upload
-              customRequest={({ onSuccess }) => {
-                onSuccess("ok")
-              }}
-              beforeUpload={beforeUpload}
-              listType="picture-card"
-            >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
-          </Form.Item>
-          <Form.Item
-            name="images2"
-            label="Upload the main image"
-            rules={[{ required: true, message: 'Please upload the main image' }]}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            style={{ flex: '0 0 25%', paddingRight: '8px' }}
-          >
-            <Upload
-              customRequest={({ onSuccess }) => {
-                onSuccess("ok")
-              }}
-              beforeUpload={beforeUpload}
-              listType="picture-card"
-            >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
-          </Form.Item>
-          <Form.Item
-            name="cover"
-            label="Upload the main image"
-            rules={[{ required: true, message: 'Please upload the main image' }]}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            style={{ flex: '0 0 25%', paddingRight: '8px' }}
-          >
-            <Upload
-              customRequest={({ onSuccess }) => {
-                onSuccess("ok")
-              }}
-              beforeUpload={beforeUpload}
-              listType="picture-card"
-            >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
-          </Form.Item>
+        name="inclusive"
+        label="Inclusive"
+        style={{ flex: '0 0 15%', paddingRight: '8px' }}
+        initialValue={inclusive} 
+        valuePropName="checked"
+      >
+        <Switch onChange={(checked) => setInclusive(checked)} /> 
+      </Form.Item>
+          {
+            !currentItem ? (
+              <>
+                <Form.Item
+                  name="images1"
+                  label="Upload car images"
+                  rules={[{ required: true, message: 'Please upload images' }]}
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  style={{ flex: '0 0 25%', paddingRight: '8px' }}
+                >
+                  <Upload
+                    customRequest={({ onSuccess }) => {
+                      onSuccess('ok');
+                    }}
+                    beforeUpload={beforeUpload}
+                    listType="picture-card"
+                  >
+                    <div>
+                      <PlusOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  </Upload>
+                </Form.Item>
+                <Form.Item
+                  name="images2"
+                  label="Upload the main image"
+                  rules={[{ required: true, message: 'Please upload the main image' }]}
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  style={{ flex: '0 0 25%', paddingRight: '8px' }}
+                >
+                  <Upload
+                    customRequest={({ onSuccess }) => {
+                      onSuccess('ok');
+                    }}
+                    beforeUpload={beforeUpload}
+                    listType="picture-card"
+                  >
+                    <div>
+                      <PlusOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  </Upload>
+                </Form.Item>
+                <Form.Item
+                  name="cover"
+                  label="Upload the cover image"
+                  rules={[{ required: true, message: 'Please upload the cover image' }]}
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  style={{ flex: '0 0 25%', paddingRight: '8px' }}
+                >
+                  <Upload
+                    customRequest={({ onSuccess }) => {
+                      onSuccess('ok');
+                    }}
+                    beforeUpload={beforeUpload}
+                    listType="picture-card"
+                  >
+                    <div>
+                      <PlusOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  </Upload>
+                </Form.Item>
+              </>
+            ) : null
+          }
           <Form.Item style={{ flex: '0 0 100%' }}>
             <Button type="primary" htmlType="submit" loading={loading}>
               Save
             </Button>
           </Form.Item>
         </Form>
-
       </Modal>
     </div>
   )

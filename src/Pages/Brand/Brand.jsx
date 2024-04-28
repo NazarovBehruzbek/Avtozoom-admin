@@ -8,6 +8,7 @@ export default function Brand() {
   const [brands, setBrands] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
   const showModal = () => {
@@ -20,8 +21,10 @@ export default function Brand() {
   };
 
   const getBrands = () => {
+    setLoading(true)
     axios.get(`${host}/brands`).then((res) => {
       setBrands(res.data.data)
+      setLoading(false)
     }).catch((error) => {
       console.log(error);
     });
@@ -158,7 +161,7 @@ export default function Brand() {
     <div>
       <h1>Brand</h1>
       <Button onClick={showModal} type="primary">Add</Button>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table dataSource={dataSource} columns={columns} loading={loading}/>
       <Modal title="Add/Edit Brand" visible={isModalOpen} onCancel={handleCancel} footer={null}>
         <Form form={form} onFinish={handleOk} layout="vertical" autoComplete="off" >
           <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
