@@ -4,6 +4,7 @@ import { Button, Form, Image, Modal, Input, Upload, message } from "antd";
 import { ExclamationCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import "./Categories.css";
 import { urlimage } from "../Login/Auth/Auth";
+import Item from "antd/es/list/Item";
 
 export default function Categories() {
   const [dataCars, setDateCars] = React.useState([]);
@@ -176,6 +177,7 @@ export default function Categories() {
     }).then((response) => {
       if (response?.status == 200) {
         setIsModalEditOpen(false)
+        console.log("Respose--- ",response);
         message.success("Car Editted successfully");
         getItems();
       } else {
@@ -269,8 +271,8 @@ export default function Categories() {
             <div className="categories_item" key={i}>
               <img src={`${urlimage}${item.image_src}`} alt="img" />
               <div className="categories_titles">
-                <h5>{item.name_en}</h5>
-                <h5>{item.name_ru}</h5>
+                <h5><span>En: </span>{item.name_en}</h5>
+                <h5><span>Ru: </span>{item.name_ru}</h5>
               </div>
               <div className="categories_item-btn">
                 <Button
