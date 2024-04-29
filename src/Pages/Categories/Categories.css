@@ -38,8 +38,8 @@
                     align-items: self-end;
                     & h5 {
                         text-align: center;
-                        width: 350px;
-                        font-size: 36px;
+                        width: 450px;
+                        font-size: 28px;
                         color: rgb(100, 99, 99);
                         & span{
                             color: rgb(0, 94, 255);
