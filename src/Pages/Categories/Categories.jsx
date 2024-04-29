@@ -159,13 +159,15 @@ export default function Categories() {
     console.log("Event --- ", event);
     formData1.append("name_en", event.name_uz);
     formData1.append("name_ru", event.name_ru);
-    if (event.images && event.images.length >= 0) {
-      event.images.forEach((image) => {
+    if (event.images1 && event.images1.length > 0) {
+      event.images1.forEach((image) => {
         if (image && image.originFileObj) {
+          console.log(image.originFileObj, image.name);
           formData1.append("images", image.originFileObj, image.name);
         }
       });
     }
+    console.log(formData1);
     axios({
       url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${id}`,
       method: "PUT",

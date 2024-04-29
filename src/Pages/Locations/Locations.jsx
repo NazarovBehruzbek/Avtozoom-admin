@@ -54,9 +54,7 @@ export default function Locations() {
   }
     formData.append('text', values.text);
 
-   
-
-    const url = currentItem ? `${host}/locations/${currentItem.id}` : `${host}/cities`;
+    const url = currentItem ? `${host}/locations/${currentItem.id}` : `${host}/locations`;
     const method = currentItem ? 'PUT' : 'POST';
     const authToken = getToken(tokenKey);
 
