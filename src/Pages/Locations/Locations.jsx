@@ -32,8 +32,8 @@ export default function Locations() {
         setLoading(false)
       })
       .catch(error => {
-        console.error("Error fetching cities data:", error);
-        message.error("Failed to fetch cities data");
+        console.error("Error fetching Location data:", error);
+        message.error("Failed to fetch Location data");
       });
   };
 
@@ -70,11 +70,11 @@ export default function Locations() {
         .then(response => {
             if (response && response.data) {
               console.log("addedResponse: ", response.data);
-                message.success(currentItem ? "City updated successfully" : "City added successfully");
+                message.success(currentItem ? "Location updated successfully" : "Location added successfully");
                 handleCancel();
                 getData();
             } else {
-                message.error("Failed to save city");
+                message.error("Failed to save Location");
             }
         })
         .catch(error => {
@@ -127,7 +127,7 @@ const deleteCity = (id) => {
       }
   }
   Modal.confirm({
-      title: 'Are you sure you want to delete this user?',
+      title: 'Are you sure you want to delete this Location?',
       icon: <ExclamationCircleOutlined/>,
       okText: 'Yes',
       cancelText: 'No',
@@ -136,15 +136,15 @@ const deleteCity = (id) => {
           axios.delete(`${host}/locations/${id}`, config)
               .then(res => {
                   if (res && res.data.success) {
-                      message.success("User deleted successfully");
+                      message.success("Location deleted successfully");
                      getData()
                   } else {
-                      message.error("Failed to delete user");
+                      message.error("Failed to delete Location");
                   }
               })
               .catch(error => {
-                  console.error("Error deleting user:", error);
-                  message.error("An error occurred while deleting user");
+                  console.error("Error deleting Location:", error);
+                  message.error("An error occurred while deleting Location");
               })
               .finally(() => {
                 setLoading(false); 

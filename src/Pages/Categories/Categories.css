@@ -47,32 +47,33 @@
                 }
                 
                 }
-                .categories_item-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    & button{
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        height: 25px;
-                        width: 60px;
-                        color: #fff;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        border: none;
-                    }
-                    & button:nth-child(1){
-                        background-color: rgba(67, 67, 246, 0.854);
-                    }
-                    & button:nth-child(2){
-                        background-color: rgba(246, 57, 57, 0.642);
-                    }
-                }
+             
             }
         }
     }
 }
 .ant-modal-wrap{
     background-color:rgba(88, 88, 88, 1%);
+}
+.categories_item-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    & button{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 25px;
+        width: 60px;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+    }
+    & button:nth-child(1){
+        background-color: rgba(67, 67, 246, 0.854);
+    }
+    & button:nth-child(2){
+        background-color: rgba(246, 57, 57, 0.642);
+    }
 }

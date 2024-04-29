@@ -1,389 +1,242 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { Button, Form, Image, Modal, Input, Upload, message } from "antd";
-import { ExclamationCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import "./Categories.css";
-import { urlimage } from "../Login/Auth/Auth";
-import Item from "antd/es/list/Item";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { getToken, host, tokenKey, urlimage } from '../Login/Auth/Auth';
+import { Button, Table, Form, Modal, Input, Upload, message } from 'antd';
+// import "./style.css"
+import { ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
-export default function Categories() {
-  const [dataCars, setDateCars] = React.useState([]);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [imageSrc, setImageSrc] = React.useState(false);
 
+export default function Locations() {
+  const [cities, setCities] = useState([]);
   const [form] = Form.useForm();
-  const [form1] = Form.useForm();
-  const [id, setId] = useState(null);
-  const MyFormItemContext = React.createContext([]);
-  function toArr(str) {
-    return Array.isArray(str) ? str : [str];
-  }
-  const MyFormItemGroup = ({ prefix, children }) => {
-    const prefixPath = React.useContext(MyFormItemContext);
-    const concatPath = React.useMemo(
-      () => [...prefixPath, ...toArr(prefix)],
-      [prefixPath, prefix]
-    );
-    return (
-      <MyFormItemContext.Provider value={concatPath}>
-        {children}
-      </MyFormItemContext.Provider>
-    );
-  };
-  const MyFormItem = ({ name, ...props }) => {
-    const prefixPath = React.useContext(MyFormItemContext);
-    const concatName =
-      name !== undefined ? [...prefixPath, ...toArr(name)] : undefined;
-    return <Form.Item name={concatName} {...props} />;
-  };
-  const beforeUpload = (file) => {
-    const allowedExtensions = ["jpg", "jpeg", "png"];
-    const fileExtension = file.name.split(".").pop().toLowerCase();
-    const isValidFile = allowedExtensions.includes(fileExtension);
-
-    if (!isValidFile) {
-      message.error("You can only upload JPG/JPEG/PNG files!");
-    }
-
-    return isValidFile;
-  };
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [loading, setLoading] = useState(false)
 
   const showModal = () => {
     setIsModalOpen(true);
-    form1.resetFields();
+    form.resetFields();
+    setCurrentItem(null);
   };
-
-  const getItems = () => {
-    axios
-      .get("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
-      .then((response) => setDateCars(response?.data?.data));
-  };
-
-  const handleOk = (event) => {
-    console.log("Handle OK---", event);
-    const formData = new FormData();
-    formData.append("name_en", event.user.name.name_uz);
-    formData.append("name_ru", event.user.name.name_ru);
-    formData.append(
-      "images",
-      event.user.images[0].originFileObj,
-      event.user.images[0].name
-    );
-
-    axios({
-      url: "https://autoapi.dezinfeksiyatashkent.uz/api/categories",
-      method: "POST",
-      data: formData,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("new_token")}`,
-        "Content-Type": "multipart/form-data",
-      },
-    }).then((response) => {
-      if (response?.status == 201) {
-        setIsModalOpen(false);
-        message.success("Car added successfully");
-        getItems();
-        handleCancel(false);
-      } else {
-        message.error("Respose is bed, Try Again");
-      }
-    });
-  };
-  const delateCar = (id) => {
-    console.log(id);
-    const authToken = localStorage.getItem("new_token");
-    const config = {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    };
-    Modal.confirm({
-      title: "Are you sure you want to delete this Car?",
-      icon: <ExclamationCircleOutlined />,
-      okText: "Yes",
-      cancelText: "No",
-      onOk() {
-        axios
-          .delete(
-            `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${id}`,
-            config
-          )
-          .then((res) => {
-            if (res && res?.data?.success) {
-              message.success("User deleted successfully");
-              getItems();
-            } else {
-              message.error("Failed to delete user");
-            }
-          })
-          .catch((error) => {
-            console.error("Error deleting user:", error);
-            message.error("An error occurred while deleting user");
-          });
-      },
-      onCancel() {
-        console.log("Deletion canceled");
-      },
-    });
-  };
-
-  // Edit function  things.............................
-
-  const [isModalEditOpen, setIsModalEditOpen] = React.useState(false);
-  const showEditModal = (item) => {
-    setId(item.id);
-    setImageSrc(item.image_src);
-    console.log("ShoweditModl --- ", item);
-    setIsModalEditOpen(true);
-    form.setFieldsValue({
-      name_uz: item.name_en,
-      name_ru: item.name_ru,
-      images1: [
-        {
-          uid: item.id,
-          name: "image",
-          status: "done",
-          url: `${urlimage}${item.image_src}`,
-        },
-      ],
-    });
-  };
-  const handleEditOk = (event) => {
-    const formData1 = new FormData();
-    console.log("Event --- ", event);
-    formData1.append("name_en", event.name_uz);
-    formData1.append("name_ru", event.name_ru);
-    if (event.images1 && event.images1.length > 0) {
-      event.images1.forEach((image) => {
-        if (image && image.originFileObj) {
-          console.log(image.originFileObj, image.name);
-          formData1.append("images", image.originFileObj, image.name);
-        }
-      });
-    }
-    console.log(formData1);
-    axios({
-      url: `https://autoapi.dezinfeksiyatashkent.uz/api/categories/${id}`,
-      method: "PUT",
-      data: formData1,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("new_token")}`,
-        "Content-Type": "multipart/form-data",
-      },
-    }).then((response) => {
-      if (response?.status == 200) {
-        setIsModalEditOpen(false)
-        console.log("Respose--- ",response);
-        message.success("Car Editted successfully");
-        getItems();
-      } else {
-        message.error("Respose is bed, Try Again");
-      }
-    });
-  };
-  const handleEditCancel = () => {
-    setIsModalEditOpen(false);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
+    setCurrentItem(null);
   };
 
-  React.useEffect(() => {
-    getItems();
+  const getData = () => {
+    setLoading(true)
+    axios.get(`${host}/categories`)
+      .then(response => {
+        console.log("In getData: ", response.data);
+        setCities(response.data.data);
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error("Error fetching categories data:", error);
+        message.error("Failed to fetch categories data");
+      });
+  };
+
+  useEffect(() => {
+    getData();
   }, []);
 
-  return (
-    <div className="categories">
-      <div className="categories_box">
-        <div className="categories_btn">
-          <Button type="primary" onClick={showModal}>
-            Add
-          </Button>
-          <Modal
-            title="Cars Adds"
-            open={isModalOpen}
-            onCancel={handleCancel}
-            footer={null}
-          >
-            <Form
-              form={form1}
-              name="form_item_path"
-              layout="vertical"
-              onFinish={handleOk}
-            >
-              <MyFormItemGroup prefix={["user"]}>
-                <MyFormItemGroup prefix={["name"]}>
-                  <MyFormItem
-                    name="name_uz"
-                    label="Name Uz"
-                    customRequest={({ onSuccess }) => {
-                      onSuccess("ok");
-                    }}
-                  >
-                    <Input />
-                  </MyFormItem>
-                  <MyFormItem
-                    name="name_ru"
-                    label="Name Ru"
-                    customRequest={({ onSuccess }) => {
-                      onSuccess("ok");
-                    }}
-                  >
-                    <Input />
-                  </MyFormItem>
-                </MyFormItemGroup>
-                <MyFormItem
-                  name="images"
-                  label="Images"
-                  valuePropName="fileList"
-                  getValueFromEvent={normFile}
-                  rules={[
-                    { required: true, message: "Please upload an image" },
-                  ]}
-                >
-                  <Upload
-                    customRequest={({ onSuccess }) => {
-                      onSuccess("ok");
-                    }}
-                    beforeUpload={beforeUpload}
-                    listType="picture-card"
-                  >
-                    <div>
-                      <PlusOutlined />
-                      <div style={{ marginTop: 8 }}>Upload</div>
-                    </div>
-                  </Upload>
-                </MyFormItem>
-              </MyFormItemGroup>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form>
-          </Modal>
-        </div>
-        <div className="categories_items">
-          {dataCars.map((item, i) => (
-            <div className="categories_item" key={i}>
-              <img src={`${urlimage}${item.image_src}`} alt="img" />
-              <div className="categories_titles">
-                <h5><span>En: </span>{item.name_en}</h5>
-                <h5><span>Ru: </span>{item.name_ru}</h5>
-              </div>
-              <div className="categories_item-btn">
-                <Button
-                  type="primary"
-                  danger
-                  onClick={() => showEditModal(item)}
-                >
-                  Edit
-                </Button>
-                <Modal
-                  title="Edit Modal"
-                  open={isModalEditOpen}
-                  footer={null}
-                  style={{ opacity: "gray" }}
-                >
-                  <Form
-                    name="basic"
-                    onFinish={handleEditOk}
-                    onCancel={handleEditCancel}
-                    labelCol={{
-                      span: 8,
-                    }}
-                    wrapperCol={{
-                      span: 16,
-                    }}
-                    style={{
-                      maxWidth: 600,
-                    }}
-                    initialValues={{
-                      remember: true,
-                    }}
-                    autoComplete="off"
-                    form={form}
-                  >
-                    <Form.Item
-                      label="Name_UZ"
-                      name="name_uz"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input Car name_uz!",
-                        },
-                      ]}
-                    >
-                      <Input />
-                    </Form.Item>
+  const handleOk = (values) => {
+    setLoading(true)
+    const formData = new FormData();
+    formData.append('name_en', values.name);
+    if (values.images && values.images.length > 0) {
+      values.images.forEach((image) => {
+          if (image && image.originFileObj) {
+              formData.append('images', image.originFileObj, image.name);
+          }
+      });
+  }
+    formData.append('name_ru', values.text);
 
-                    <Form.Item
-                      label="Name_RU"
-                      name="name_ru"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input Car name_ru!",
-                        },
-                      ]}
-                    >
-                      <Input />
-                    </Form.Item>
-                    <Form.Item
-                      label="Change Image"
-                      name="images1"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input Car Images!",
-                        },
-                      ]}
-                      valuePropName="fileList"
-                      getValueFromEvent={normFile}
-                    >
-                      <Upload
-                        customRequest={({ onSuccess }) => {
-                          onSuccess("ok");
-                        }}
-                        beforeUpload={beforeUpload}
-                        listType="picture-card"
-                      >
-                        <div>
-                          <PlusOutlined />
-                          {/* <Image src={`${urlimage}${item.image_src}`} alt="img" /> */}
-                          <div style={{ marginTop: 8 }}>Upload</div>
-                        </div>
-                      </Upload>
-                    </Form.Item>
-                    <Form.Item
-                      wrapperCol={{
-                        offset: 8,
-                        span: 16,
-                      }}
-                    >
-                      <Button type="primary" htmlType="submit">
-                        Submit
-                      </Button>
-                    </Form.Item>
-                  </Form>
-                </Modal>
-                <Button
-                  type="primary"
-                  danger
-                  onClick={() => delateCar(item.id)}
-                >
-                  Delate
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+    const url = currentItem ? `${host}/categories/${currentItem.id}` : `${host}/categories`;
+    const method = currentItem ? 'PUT' : 'POST';
+    const authToken = getToken(tokenKey);
+
+    axios({
+        url: url,
+        method: method,
+        data: formData,
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+        .then(response => {
+            if (response && response.data) {
+              console.log("addedResponse: ", response.data);
+                message.success(currentItem ? "Location updated successfully" : "Location added successfully");
+                handleCancel();
+                getData();
+            } else {
+                message.error("Failed to save Location");
+            }
+        })
+        .catch(error => {
+            console.error("Error processing request:", error);
+            message.error("An error occurred while processing the request");
+        })
+        .finally(() => {
+          setLoading(false); 
+      });
+};
+
+ // Function to prepare data for editing
+  const editModal = (item) => {
+    setIsModalOpen(true);
+    form.setFieldsValue({
+        name: item.name_en,
+        text: item.name_ru,
+        images: [{ uid: item.id, name: 'image', status: 'done', url: `${urlimage}${item.image_src}` }], 
+    });
+    setCurrentItem(item);
+};
+
+   // Image file validation
+   const beforeUpload = (file) => {
+    const allowedExtensions = ['jpg', 'jpeg', 'png'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const isValidFile = allowedExtensions.includes(fileExtension);
+
+    if (!isValidFile) {
+        message.error('You can only upload JPG/JPEG/PNG files!');
+    }
+
+    return isValidFile;
+};
+
+// Handle file upload events
+const normFile = (e) => {
+    if (Array.isArray(e)) {
+        return e;
+    }
+    return e && e.fileList;
+};
+
+// Delete function 
+const deleteCity = (id) => {
+  const authToken = getToken(tokenKey);
+  const config = {
+      headers: {
+          'Authorization': `Bearer ${authToken}`
+      }
+  }
+  Modal.confirm({
+      title: 'Are you sure you want to delete this Categories?',
+      icon: <ExclamationCircleOutlined/>,
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk() {
+        setLoading(true)
+          axios.delete(`${host}/categories/${id}`, config)
+              .then(res => {
+                  if (res && res.data.success) {
+                      message.success("Categories deleted successfully");
+                     getData()
+                  } else {
+                      message.error("Failed to delete Categories");
+                  }
+              })
+              .catch(error => {
+                  console.error("Error deleting Categories:", error);
+                  message.error("An error occurred while deleting Categories");
+              })
+              .finally(() => {
+                setLoading(false); 
+            });
+      },
+      onCancel() {
+          console.log("Deletion canceled");
+      },
+  });
+};
+
+  const columns = [
+    {
+      title: '№',
+      dataIndex: 'number',
+      key: 'number',
+    },
+    {
+      title: 'Images',
+      dataIndex: 'images',
+      key: 'images',
+    },
+    {
+      title: 'Name_Ru',
+      dataIndex: 'name',
+      key: 'name_',
+    },
+    {
+      title: 'Name_Uz',
+      dataIndex: 'text',
+      key: 'text',
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+    },
+  ];
+  const dataSource = cities.map((item, index) => ({
+    key: item.id,
+    number: index + 1,
+    images: (
+      <img style={{ width: "70px", height: '70px'}} src={`${urlimage}${item.image_src}`} alt="Error" />
+    ),
+    name: item.name_en,
+    text: item.name_ru,
+    action: (
+      <>
+        <Button style={{ marginRight: '20px' }} type="primary" onClick={() => editModal(item)}>Edit</Button>
+        <Button type="primary" danger onClick={()=>deleteCity(item.id)}>Delete</Button>
+      </>
+    )
+  }));
+
+
+  return (
+    <div>
+       <div className="all-pages">
+        <h2>Categories</h2>
+        <Button type='primary' onClick={showModal}>Add Categories</Button>
       </div>
+      <Table dataSource={dataSource} columns={columns} loading={loading}/>
+      <Modal title={currentItem?"Tahrirlash":"Qo'shish"} open={isModalOpen} onCancel={handleCancel} footer={null}>
+        <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onFinish={handleOk}>
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="text" label="Text" rules={[{ required: true, message: 'Please enter the text' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Upload Image" name="images" valuePropName="fileList" getValueFromEvent={normFile} rules={[{ required: true, message: 'Please upload an image' }]}>
+            <Upload
+              customRequest={({ onSuccess }) => {
+                onSuccess("ok")
+              }}
+              beforeUpload={beforeUpload}
+              listType="picture-card"
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            </Upload>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Save
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
     </div>
-  );
+  )
 }
