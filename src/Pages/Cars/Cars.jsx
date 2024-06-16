@@ -16,6 +16,7 @@ export default function Cars() {
   const [city, setCity] = useState([]);
   const [form] = Form.useForm();
   const [loading, setloading] = useState(false);
+  const [loading1, setloading1] = useState(false);
   const [inclusive, setInclusive] = useState(false);
   const showModal = () => {
     setOpen(true);
@@ -27,15 +28,17 @@ export default function Cars() {
     setCurrentItem(null);
   };
   const getCars = () => {
+    console.log("asd");
     setloading(true)
     axios.get(`${host}/cars`)
       .then(response => {
         setCars(response?.data?.data);
-        setloading(false)
       })
       .catch(error => {
         console.error("Error fetching cars data:", error);
-      });
+      }).finally(()=>{
+        setloading(false)
+      })
   };
   const getCategory = () => {
     axios.get(`${host}/categories`)
@@ -114,7 +117,7 @@ export default function Cars() {
   }
 
   const handleOk = (values) => {
-    setloading(true);
+    setloading1(true);
     const formData = new FormData();
     formData.append('brand_id', values.brand_id);
     formData.append('model_id', values.model_id);
@@ -189,7 +192,7 @@ export default function Cars() {
         message.error("An error occurred while processing the request");
       })
       .finally(() => {
-        setloading(false)
+        setloading1(false)
       })
   };
   const editModal = (item) => {
@@ -233,7 +236,7 @@ export default function Cars() {
       okText: 'Yes',
       cancelText: 'No',
       onOk() {
-        setloading(true)
+        setloading1(true)
         axios.delete(`${host}/cars/${id}`, config)
           .then(res => {
             if (res && res.data.success) {
@@ -248,7 +251,7 @@ export default function Cars() {
             message.error("An error occurred while deleting cars");
           })
           .finally(() => {
-            setloading(false)
+            setloading1(false)
           })
       },
       onCancel() {
@@ -603,7 +606,7 @@ export default function Cars() {
             ) : null
           }
           <Form.Item style={{ flex: '0 0 100%' }}>
-            <Button type="primary" htmlType="submit" loading={loading}>
+            <Button type="primary" htmlType="submit" loading={loading1}>
               Save
             </Button>
           </Form.Item>
