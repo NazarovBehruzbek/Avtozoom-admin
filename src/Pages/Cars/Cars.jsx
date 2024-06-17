@@ -27,19 +27,25 @@ export default function Cars() {
     setOpen(false);
     setCurrentItem(null);
   };
-  const getCars = () => {
-    console.log("asd");
-    setloading(true)
-    axios.get(`${host}/cars`)
-      .then(response => {
-        setCars(response?.data?.data);
-      })
-      .catch(error => {
-        console.error("Error fetching cars data:", error);
-      }).finally(()=>{
-        setloading(false)
-      })
+  const getCars = async () => {
+    const authToken = getToken(tokenKey);
+    setloading(true); 
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${authToken}`, 
+      },
+    };
+  
+    try {
+      const response = await axios.get(`${host}/cars`, config);
+      setCars(response.data.data); 
+    } catch (error) {
+      console.error("Error fetching cars data:", error);
+    } finally {
+      setloading(false);
+    }
   };
+  
   const getCategory = () => {
     axios.get(`${host}/categories`)
       .then(response => {
