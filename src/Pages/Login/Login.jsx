@@ -16,7 +16,6 @@ const Login = () => {
             const res = await signin(values);
             if (res && res?.data?.data?.tokens?.accessToken?.token) {
                 setLocalStorage(tokenKey, res?.data?.data?.tokens?.accessToken?.token);
-                console.log(res);
                 message.success("Muvaffaqiyatli o'tildi");
                 navigate('/');
             } else {

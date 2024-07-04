@@ -66,7 +66,6 @@ export default function Categories() {
 
 
   const handleOk = (event) => {
-    console.log("Handle OK---",event);
     const formData = new FormData();
     formData.append("name_en", event.user.name.name_uz);
     formData.append("name_ru", event.user.name.name_ru);
@@ -96,7 +95,6 @@ export default function Categories() {
     });
   };
   const delateCar = (id) => {
-    console.log(id);
     const authToken = localStorage.getItem("new_token");
     const config = {
       headers: {
