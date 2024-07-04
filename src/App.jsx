@@ -7,7 +7,6 @@ import Login from "./Pages/Login/Login";
 function App() {
   const navigate = useNavigate();
   const token = localStorage.getItem(tokenKey)
-  console.log(token);
   useEffect(() => {
       if (!token) {
           navigate("/login");
